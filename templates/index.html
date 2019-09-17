@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+    <head>
+        <link rel="stylesheet" href="../static/bootstrap.min.css"></link>
+        <script href="../static/bootstrap.bundle.js"></script>
+        <script href="../static/jquery.js"></script>
+        
+        <style>
+                #map {
+                  height: 750px;
+                }
+                html, body {
+                  height: 100%;
+                  margin: 0;
+                  padding: 0;
+                }
+              </style>
+    </head>
+    <body>
+            
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h1>Trickle Tracker</h1>
+                    <h4>Water availability predictions for backcountry water sources.</h4>
+                </div>
+                <div class="col-lg-6">
+                    <div id="map" width=100% height=750px></div>
+                    <script>
+                        var map;
+                        function initMap() {
+                            map = new google.maps.Map(document.getElementById('map'), {
+                                center: {lat: 34.4835464, lng: -116.763886},
+                                zoom: 7
+                            });
+                            data = {{data|tojson}};
+                            console.log(typeof data);
+
+                            var iconBase = 'http://maps.google.com/mapfiles/kml/paddle/';
+                            var icons = {
+                            vl: {
+                                name: 'vl',
+                                icon: iconBase + 'blu-blank.png'
+                            },
+                            l: {
+                                name: 'l',
+                                icon: iconBase + 'orange-blank.png'
+                            },
+                            u: {
+                                name: 'u',
+                                icon: iconBase + 'red-blank.png'
+                            }
+                            };
+
+
+                            data.forEach(function(loc){
+
+                                position = {'lat': loc.lat, 'lng':loc.lon}
+                                var marker = new google.maps.Marker({
+                                    position: position, 
+                                    map: map,
+                                    icon: icons[loc.class].icon
+                                    });
+                            });
+                            
+                        }
+                    </script>
+                </div>
+
+                <div class="col-lg-6">
+                    <ul class="list-group">
+                        <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center secondary">Water Sources</li>
+                            {% for loc in data %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="float-left">{{ loc.name }} </span>
+                                {% if loc.class == 'vl' %}
+                                    <span class="float-right badge badge-info">Water Very Likely </span>
+                                {% elif loc.class == 'l' %}
+                                    <span class="float-right badge badge-warning">Water Likely </span>
+                                {% else %}
+                                    <span class="float-right badge badge-danger">Water Unreliable </span>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+                
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2JH9aKFb5AuinMIDvZHF9CDuHHFgA2Go&callback=initMap"async defer></script>
+    </body>
+</html>
