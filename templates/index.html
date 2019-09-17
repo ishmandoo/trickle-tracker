@@ -38,12 +38,12 @@
 
                             var iconBase = 'http://maps.google.com/mapfiles/kml/paddle/';
                             var icons = {
-                            vl: {
-                                name: 'vl',
+                            r: {
+                                name: 'r',
                                 icon: iconBase + 'blu-blank.png'
                             },
-                            l: {
-                                name: 'l',
+                            p: {
+                                name: 'p',
                                 icon: iconBase + 'orange-blank.png'
                             },
                             u: {
@@ -73,10 +73,10 @@
                             {% for loc in data %}
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span class="float-left">{{ loc.name }} </span>
-                                {% if loc.class == 'vl' %}
-                                    <span class="float-right badge badge-info">Water Very Likely </span>
-                                {% elif loc.class == 'l' %}
-                                    <span class="float-right badge badge-warning">Water Likely </span>
+                                {% if loc.class == 'r' %}
+                                    <span class="float-right badge badge-info">Water Reliable </span>
+                                {% elif loc.class == 'p' %}
+                                    <span class="float-right badge badge-warning">Water Probable </span>
                                 {% else %}
                                     <span class="float-right badge badge-danger">Water Unreliable </span>
                                 {% endif %}
