@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 app = Flask(__name__)
 import pickle
+import sys
 
 f = open('out.pkl', 'rb')   # Pickle file is newly created where foo1.py is
 data = pickle.load(f)
@@ -34,4 +35,7 @@ def hello():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    if len(sys.argv) > 1 and sys.argv[1] == 'prod':
+        app.run(port=80, host='0.0.0.0')
+    else:
+        app.run(debug=True)
