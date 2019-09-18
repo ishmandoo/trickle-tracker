@@ -4,6 +4,10 @@
         <link rel="stylesheet" href="../static/bootstrap.min.css"></link>
         <script href="../static/bootstrap.bundle.js"></script>
         <script href="../static/jquery.js"></script>
+        <script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
         
         <style>
                 #map {
@@ -59,7 +63,18 @@
                                     position: position, 
                                     map: map,
                                     icon: icons[loc.class].icon
-                                    });
+                                });
+
+                                marker.addListener('mouseover', function() {
+                                    $("#"+loc.loc_id).addClass('table-active');
+                                    
+                                    //location.href = "#"+loc.loc_id;
+                                });
+
+
+                                marker.addListener('mouseout', function() {
+                                    $("#"+loc.loc_id).removeClass('table-active');
+                                });
                             });
                             
                         }
@@ -67,21 +82,70 @@
                 </div>
 
                 <div class="col-lg-6">
-                    <ul class="list-group">
-                        <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center secondary">Water Sources</li>
-                            {% for loc in data %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span class="float-left">{{ loc.name }} </span>
-                                {% if loc.class == 'r' %}
-                                    <span class="float-right badge badge-info">Water Reliable </span>
-                                {% elif loc.class == 'p' %}
-                                    <span class="float-right badge badge-warning">Water Probable </span>
-                                {% else %}
-                                    <span class="float-right badge badge-danger">Water Unreliable </span>
-                                {% endif %}
-                            </li>
-                            {% endfor %}
-                    </ul>
+                    <div class="row">
+                            <div class="col-3 col-sm-3">
+                                <input type="text" class="form-control" placeholder="mile" aria-label="Username" aria-describedby="basic-addon1">
+                            </div>
+                            <div class="col-3 col-sm-3">
+                                <div>
+                                        <ul class="pagination">
+                                            <li class="page-item active">
+                                            <a class="page-link" href="#">NOBO</a>
+                                            </li>
+                                            <li class="page-item">
+                                            <a class="page-link" href="#">SOBO</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                            </div>
+                            <div class="col-6 col-sm-6">
+                                <div>
+                                        <ul class="pagination">
+                                            <li class="page-item active">
+                                            <a class="page-link" href="#">1</a>
+                                            </li>
+                                            <li class="page-item">
+                                            <a class="page-link" href="#">2</a>
+                                            </li>
+                                            <li class="page-item">
+                                            <a class="page-link" href="#">3</a>
+                                            </li>
+                                            <li class="page-item">
+                                            <a class="page-link" href="#">4</a>
+                                            </li>
+                                            <li class="page-item">
+                                            <a class="page-link" href="#">5</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                            </div>
+                        </div>
+
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                            <th scope="col">Mile</th>
+                            <th scope="col">Name</th>
+                            </tr>
+                        </thead>
+                        <tbody height=750px style="overflow: scroll;">
+                            {% for loc in data|sort(attribute='mile') %}
+                                <tr id="{{loc.loc_id}}">
+                                    <th scope="row">{{"%.1f"|format(loc.mile)}}</th>
+                                    <td>
+                                        {{loc.name}}
+                                        {% if loc.class == 'r' %}
+                                            <span class="float-right badge badge-info">Water Reliable </span>
+                                        {% elif loc.class == 'p' %}
+                                            <span class="float-right badge badge-warning">Water Probable </span>
+                                        {% else %}
+                                            <span class="float-right badge badge-danger">Water Unreliable </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %} 
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
