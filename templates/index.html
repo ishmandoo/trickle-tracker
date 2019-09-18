@@ -20,9 +20,9 @@
             
         <div class="container">
             <div class="row">
-                <div class="col-lg-12 text-center">
-                    <h1>Trickle Tracker</h1>
-                    <h4>Water availability predictions for backcountry water sources.</h4>
+                <div class="col-lg-12">
+                    <h1>TrickleTracker</h1>
+                    <h3>Water availability predictions for backcountry water sources.</h3>
                 </div>
                 <div class="col-lg-6">
                     <div id="map" width=100% height=750px></div>
@@ -36,19 +36,18 @@
                             data = {{data|tojson}};
                             console.log(typeof data);
 
-                            var iconBase = 'http://maps.google.com/mapfiles/kml/paddle/';
                             var icons = {
                             r: {
                                 name: 'r',
-                                icon: iconBase + 'blu-blank.png'
+                                icon: '../static/img/blue_marker.png'
                             },
                             p: {
                                 name: 'p',
-                                icon: iconBase + 'orange-blank.png'
+                                icon: '../static/img/orange_marker.png'
                             },
                             u: {
                                 name: 'u',
-                                icon: iconBase + 'red-blank.png'
+                                icon: '../static/img/red_marker.png'
                             }
                             };
 
