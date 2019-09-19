@@ -16,7 +16,6 @@ data = [
     ]
 
 '''
-
 for loc in data:
     pred = loc['prediction']
     if  pred > 0.8:
@@ -25,6 +24,9 @@ for loc in data:
         loc['class'] = 'p'
     else:
         loc['class'] = 'u'
+
+
+data.sort(key=lambda i: i['mile'])
 
 print(data)
 

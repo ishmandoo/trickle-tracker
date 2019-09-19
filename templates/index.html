@@ -4,146 +4,68 @@
         <link rel="stylesheet" href="../static/bootstrap.min.css"></link>
         <script href="../static/bootstrap.bundle.js"></script>
         <script href="../static/jquery.js"></script>
-        <script
-  src="https://code.jquery.com/jquery-3.4.1.js"
-  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
-  crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
         
         <style>
-                #map {
-                  height: 750px;
-                }
-                html, body {
-                  height: 100%;
-                  margin: 0;
-                  padding: 0;
-                }
-              </style>
+            #map {
+                height: 750px;
+            }
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .span3 {  
+                height: 100px !important;
+                overflow: scroll;
+            }
+
+            body {
+            overflow-y:hidden;
+            }
+        </style>
     </head>
     <body>
             
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <h1>TrickleTracker</h1>
-                    <h3>Water availability predictions for backcountry water sources.</h3>
+                    <!--<h1>TrickleTracker</h1>
+                    <h3>Water availability predictions for backcountry water sources.</h3>-->
+                    <img src="../static/img/banner.png" class="img-fluid"></img>
                 </div>
+                <span class="border-top my-3"></span>
+
                 <div class="col-lg-6">
                     <div id="map" width=100% height=750px></div>
-                    <script>
-                        var map;
-                        function initMap() {
-                            map = new google.maps.Map(document.getElementById('map'), {
-                                center: {lat: 34.4835464, lng: -116.763886},
-                                zoom: 7
-                            });
-                            data = {{data|tojson}};
-                            console.log(typeof data);
-
-                            var icons = {
-                            r: {
-                                name: 'r',
-                                icon: '../static/img/blue_marker.png'
-                            },
-                            p: {
-                                name: 'p',
-                                icon: '../static/img/orange_marker.png'
-                            },
-                            u: {
-                                name: 'u',
-                                icon: '../static/img/red_marker.png'
-                            }
-                            };
-
-
-                            data.forEach(function(loc){
-
-                                position = {'lat': loc.lat, 'lng':loc.lon}
-                                var marker = new google.maps.Marker({
-                                    position: position, 
-                                    map: map,
-                                    icon: icons[loc.class].icon
-                                });
-
-                                marker.addListener('mouseover', function() {
-                                    $("#"+loc.loc_id).addClass('table-active');
-                                    
-                                    //location.href = "#"+loc.loc_id;
-                                });
-
-
-                                marker.addListener('mouseout', function() {
-                                    $("#"+loc.loc_id).removeClass('table-active');
-                                });
-                            });
-                            
-                        }
-                    </script>
                 </div>
 
                 <div class="col-lg-6">
                     <div class="row">
-                            <div class="col-3 col-sm-3">
-                                <input type="text" class="form-control" placeholder="mile" aria-label="Username" aria-describedby="basic-addon1">
-                            </div>
-                            <div class="col-3 col-sm-3">
-                                <div>
-                                        <ul class="pagination">
-                                            <li class="page-item active">
-                                            <a class="page-link" href="#">NOBO</a>
-                                            </li>
-                                            <li class="page-item">
-                                            <a class="page-link" href="#">SOBO</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                            </div>
-                            <div class="col-6 col-sm-6">
-                                <div>
-                                        <ul class="pagination">
-                                            <li class="page-item active">
-                                            <a class="page-link" href="#">1</a>
-                                            </li>
-                                            <li class="page-item">
-                                            <a class="page-link" href="#">2</a>
-                                            </li>
-                                            <li class="page-item">
-                                            <a class="page-link" href="#">3</a>
-                                            </li>
-                                            <li class="page-item">
-                                            <a class="page-link" href="#">4</a>
-                                            </li>
-                                            <li class="page-item">
-                                            <a class="page-link" href="#">5</a>
-                                            </li>
-                                        </ul>
-                                    </div>
+                        <div class="col-3 col-sm-3">
+                            <input type="text" class="form-control form-inline" placeholder="mile" aria-label="Username" id="mile_input">
+                        </div>
+                        <div class="col-3 col-sm-3">
+                            <div>
+                                <button id="dir" class="btn btn-primary btn-block float-right" >NOBO</button>
                             </div>
                         </div>
+                        <div class="col-6 col-sm-6">
+                        
+                        </div>
+                    </div>
+                        
+                    <span class="border-top my-3"></span>
 
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                            <th scope="col">Mile</th>
-                            <th scope="col">Name</th>
+                            <th scope="col" style="width: 10%">Mile</th>
+                            <th scope="col" style="width: 83%">Name</th>
+                            <!--<th scope="col" style="width: 7%">Water</th>-->
                             </tr>
                         </thead>
-                        <tbody height=750px style="overflow: scroll;">
-                            {% for loc in data|sort(attribute='mile') %}
-                                <tr id="{{loc.loc_id}}">
-                                    <th scope="row">{{"%.1f"|format(loc.mile)}}</th>
-                                    <td>
-                                        {{loc.name}}
-                                        {% if loc.class == 'r' %}
-                                            <span class="float-right badge badge-info">Water Reliable </span>
-                                        {% elif loc.class == 'p' %}
-                                            <span class="float-right badge badge-warning">Water Probable </span>
-                                        {% else %}
-                                            <span class="float-right badge badge-danger">Water Unreliable </span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %} 
+                        <tbody height=750px class="span3" id="list">
                         </tbody>
                     </table>
                 </div>
@@ -153,3 +75,157 @@
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2JH9aKFb5AuinMIDvZHF9CDuHHFgA2Go&callback=initMap"async defer></script>
     </body>
 </html>
+
+<script>
+        var map;
+        var icons = {
+            r: {
+                name: 'r',
+                icon: '../static/img/blue_marker.png'
+            },
+            p: {
+                name: 'p',
+                icon: '../static/img/orange_marker.png'
+            },
+            u: {
+                name: 'u',
+                icon: '../static/img/red_marker.png'
+            }
+        };
+
+        function reverse_children(element){
+            for (var i=1;i<element.childNodes.length;i++){
+                element.insertBefore(element.childNodes[i], element.firstChild);
+            }
+        }
+
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: {lat: 34.4835464, lng: -116.763886},
+                zoom: 7
+            });
+            data = {{data|tojson}};
+
+            loc_list = $('#list');
+
+            list_items = [];
+
+            data.forEach(function(loc){
+                var tr = $('<tr/>')
+                    .appendTo(loc_list);
+                
+                var th = $('<th/>')
+                    .text(loc.mile.toFixed(1))
+                    .appendTo(tr)
+
+                var td = $('<td/>')
+                    .text(loc.name)
+                    .appendTo(tr)
+
+                if (loc.class == 'r') {
+                    var span = $('<span/>')
+                        .text("Water Reliable")
+                        .addClass("float-right")
+                        .addClass("badge")
+                        .addClass("badge-info")
+                        .appendTo(td)
+                } else if (loc.class == 'p') {
+                    var span = $('<span/>')
+                        .text("Water Probable")
+                        .addClass("float-right")
+                        .addClass("badge")
+                        .addClass("badge-warning")
+                        .appendTo(td)
+                } else if (loc.class == 'u') {
+                    var span = $('<span/>')
+                        .text("Water Unreliable")
+                        .addClass("float-right")
+                        .addClass("badge")
+                        .addClass("badge-danger")
+                        .appendTo(td)
+                }
+
+
+
+                position = {'lat': loc.lat, 'lng':loc.lon}
+                var marker = new google.maps.Marker({
+                    position: position, 
+                    map: map,
+                    icon: icons[loc.class].icon
+                });
+
+                marker.addListener('mouseover', function() {
+                    tr.addClass('table-active');
+                    
+                    //location.href = "#"+loc.loc_id;
+                });
+
+
+                marker.addListener('mouseout', function() {
+                    tr.removeClass('table-active');
+                });
+
+                tr.click(function(){
+                    if (marker.getAnimation() != google.maps.Animation.BOUNCE) {
+                        marker.setAnimation(google.maps.Animation.BOUNCE);
+                    } else {
+                        marker.setAnimation(null);
+                    }
+                })
+
+                tr.mile = loc.mile;
+
+                list_items.push(tr)
+
+            });
+
+            
+        }
+
+
+
+    function updateListVisability() {
+        mile = parseFloat($('#mile_input').val())
+        if (!isNaN(mile)) {
+            list_items.forEach(function(item){
+                if (mile < item.mile) {
+                    if (btn.text() == "NOBO") {
+                        item.show();
+                    } else if (btn.text() == "SOBO") {
+                        item.hide();
+                    }
+                } else {
+                    if (btn.text() == "NOBO") {
+                        item.hide();
+                    } else if (btn.text() == "SOBO") {
+                        item.show();
+                    }
+                }
+            });
+        } else {
+            list_items.forEach(function(item){
+                item.show();
+            });
+        }
+    }
+
+    $('#mile_input').on('input', function () {
+        updateListVisability()
+    })
+
+    $('#dir').click(function() {
+        btn = $('#dir');
+        if (btn.text() == "NOBO") {
+            btn.text("SOBO");
+            reverse_children($('#list')[0]);
+            updateListVisability();
+            
+        } else if (btn.text() == "SOBO") {
+            btn.text("NOBO");
+            reverse_children($('#list')[0]);
+            updateListVisability();
+        }
+    })
+
+</script>
