@@ -15,13 +15,32 @@
                 margin: 0;
                 padding: 0;
             }
-            .span3 {  
-                height: 100px !important;
-                overflow: scroll;
+            body {
+                overflow-y:hidden;
             }
 
-            body {
-            overflow-y:hidden;
+            .table-fixed thead {
+                width: 97%;
+            }
+            .table-fixed tbody {
+                height:650px;
+                display : none;
+                overflow-y: auto;
+                width: 100%;
+            }
+            
+            tr {
+                height: 50px;
+                
+                overflow-y:none;
+            }
+
+            .table-fixed thead, .table-fixed tbody, .table-fixed tr, .table-fixed td, .table-fixed th {
+                display: block;
+            }
+            .table-fixed tbody td, .table-fixed thead > tr> th {
+                float: left;
+                border-bottom-width: 0;
             }
         </style>
     </head>
@@ -34,38 +53,34 @@
                     <h3>Water availability predictions for backcountry water sources.</h3>-->
                     <img src="../static/img/banner.png" class="img-fluid"></img>
                 </div>
-                <span class="border-top my-3"></span>
 
                 <div class="col-lg-6">
                     <div id="map" width=100% height=750px></div>
                 </div>
 
                 <div class="col-lg-6">
-                    <div class="row">
+                    <div class="row" style="margin-bottom: 10px;">
                         <div class="col-3 col-sm-3">
                             <input type="text" class="form-control form-inline" placeholder="mile" aria-label="Username" id="mile_input">
                         </div>
                         <div class="col-3 col-sm-3">
                             <div>
-                                <button id="dir" class="btn btn-primary btn-block float-right" >NOBO</button>
+                                <button id="dir" class="btn btn-primary btn-block" >NOBO</button>
                             </div>
                         </div>
                         <div class="col-6 col-sm-6">
-                        
                         </div>
                     </div>
-                        
-                    <span class="border-top my-3"></span>
 
-                    <table class="table table-hover">
+                    <table class="table table-fixed table-hover">
                         <thead>
-                            <tr>
-                            <th scope="col" style="width: 10%">Mile</th>
-                            <th scope="col" style="width: 83%">Name</th>
-                            <!--<th scope="col" style="width: 7%">Water</th>-->
+                            <tr class="">
+                                <th scope="col" class="col-sm-1">Mile</th>
+                                <th scope="col" class="col-sm-2">Water</th>
+                                <th scope="col" class="col-sm-9">Water Source Name</th>
                             </tr>
                         </thead>
-                        <tbody height=750px class="span3" id="list">
+                        <tbody id="list">
                         </tbody>
                     </table>
                 </div>
@@ -83,6 +98,10 @@
                 name: 'r',
                 icon: '../static/img/blue_marker.png'
             },
+            sel: {
+                name: 'sel',
+                icon: '../static/img/big_marker.png'
+            },
             p: {
                 name: 'p',
                 icon: '../static/img/orange_marker.png'
@@ -97,6 +116,17 @@
             for (var i=1;i<element.childNodes.length;i++){
                 element.insertBefore(element.childNodes[i], element.firstChild);
             }
+        }
+
+        function getMethods(obj)
+        {
+            var res = [];
+            for(var m in obj) {
+                if(typeof obj[m] == "function") {
+                    res.push(m)
+                }
+            }
+            return res;
         }
 
 
@@ -115,12 +145,19 @@
                 var tr = $('<tr/>')
                     .appendTo(loc_list);
                 
-                var th = $('<th/>')
+                var td1 = $('<td/>')
                     .text(loc.mile.toFixed(1))
+                    .addClass("col-sm-1")
                     .appendTo(tr)
 
-                var td = $('<td/>')
-                    .text(loc.name)
+                var td_water = $('<td/>')
+                    .text("")
+                    .addClass("col-sm-2")
+                    .appendTo(tr)
+
+                var td2 = $('<td/>')
+                    .text(loc.name.substr(0,40)+"...")
+                    .addClass("col-sm-9")
                     .appendTo(tr)
 
                 if (loc.class == 'r') {
@@ -129,21 +166,21 @@
                         .addClass("float-right")
                         .addClass("badge")
                         .addClass("badge-info")
-                        .appendTo(td)
+                        .appendTo(td2)
                 } else if (loc.class == 'p') {
                     var span = $('<span/>')
                         .text("Water Probable")
                         .addClass("float-right")
                         .addClass("badge")
                         .addClass("badge-warning")
-                        .appendTo(td)
+                        .appendTo(td2)
                 } else if (loc.class == 'u') {
                     var span = $('<span/>')
                         .text("Water Unreliable")
                         .addClass("float-right")
                         .addClass("badge")
                         .addClass("badge-danger")
-                        .appendTo(td)
+                        .appendTo(td2)
                 }
 
 
@@ -155,26 +192,29 @@
                     icon: icons[loc.class].icon
                 });
 
+                marker.normal_icon = icons[loc.class].icon;
+
                 marker.addListener('mouseover', function() {
                     tr.addClass('table-active');
-                    
-                    //location.href = "#"+loc.loc_id;
+                    marker.setIcon(icons['sel'].icon)
                 });
 
 
                 marker.addListener('mouseout', function() {
                     tr.removeClass('table-active');
+                    marker.setIcon(marker.normal_icon)
                 });
 
-                tr.click(function(){
-                    if (marker.getAnimation() != google.maps.Animation.BOUNCE) {
-                        marker.setAnimation(google.maps.Animation.BOUNCE);
-                    } else {
-                        marker.setAnimation(null);
-                    }
+                tr.mouseover(function(){
+                    marker.setIcon(icons['sel'].icon)
+                })
+
+                tr.mouseout(function(){
+                    marker.setIcon(marker.normal_icon)
                 })
 
                 tr.mile = loc.mile;
+                tr.water = td_water;
 
                 list_items.push(tr)
 
@@ -183,29 +223,39 @@
             
         }
 
+    dir_btn = $('#dir');
 
 
     function updateListVisability() {
-        mile = parseFloat($('#mile_input').val())
+        var mile = parseFloat($('#mile_input').val())
         if (!isNaN(mile)) {
             list_items.forEach(function(item){
+
                 if (mile < item.mile) {
-                    if (btn.text() == "NOBO") {
+                    var miles_left = item.mile - mile;
+                    if (dir_btn.text() == "NOBO") {
                         item.show();
-                    } else if (btn.text() == "SOBO") {
+                    } else if (dir_btn.text() == "SOBO") {
                         item.hide();
                     }
                 } else {
-                    if (btn.text() == "NOBO") {
+
+                    var miles_left = mile- item.mile;
+                    if (dir_btn.text() == "NOBO") {
                         item.hide();
-                    } else if (btn.text() == "SOBO") {
+                    } else if (dir_btn.text() == "SOBO") {
                         item.show();
                     }
                 }
+
+                var water_needed = miles_left * 0.4;
+
+                item.water.text(water_needed.toFixed(1)+" L");
             });
         } else {
             list_items.forEach(function(item){
                 item.show();
+                item.water.text("");
             });
         }
     }
@@ -215,14 +265,13 @@
     })
 
     $('#dir').click(function() {
-        btn = $('#dir');
-        if (btn.text() == "NOBO") {
-            btn.text("SOBO");
+        if (dir_btn.text() == "NOBO") {
+            dir_btn.text("SOBO");
             reverse_children($('#list')[0]);
             updateListVisability();
             
-        } else if (btn.text() == "SOBO") {
-            btn.text("NOBO");
+        } else if (dir_btn.text() == "SOBO") {
+            dir_btn.text("NOBO");
             reverse_children($('#list')[0]);
             updateListVisability();
         }
