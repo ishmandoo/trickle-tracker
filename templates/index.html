@@ -69,15 +69,20 @@
                             </div>
                         </div>
                         <div class="col-6 col-sm-6">
+                            <ul class="pagination">
+                                <li class="page-item active" id="day_0"><a class="page-link">Today</a></li>
+                                <li class="page-item" id="day_1"><a class="page-link">+1</a></li>
+                                <li class="page-item" id="day_2"><a class="page-link">+2</a></li>
+                                <li class="page-item" id="day_3"><a class="page-link">+3</a></li>
+                            </ul>
                         </div>
                     </div>
 
                     <table class="table table-fixed table-hover">
                         <thead>
                             <tr class="">
-                                <th scope="col" class="col-sm-1">Mile</th>
-                                <th scope="col" class="col-sm-2">Water</th>
-                                <th scope="col" class="col-sm-9">Water Source Name</th>
+                                <th scope="col" class="col-sm-2">Mile</th>
+                                <th scope="col" class="col-sm-10">Water Source Name</th>
                             </tr>
                         </thead>
                         <tbody id="list">
@@ -92,147 +97,173 @@
 </html>
 
 <script>
-        var map;
-        var icons = {
-            r: {
-                name: 'r',
-                icon: '../static/img/blue_marker.png'
-            },
-            sel: {
-                name: 'sel',
-                icon: '../static/img/big_marker.png'
-            },
-            p: {
-                name: 'p',
-                icon: '../static/img/orange_marker.png'
-            },
-            u: {
-                name: 'u',
-                icon: '../static/img/red_marker.png'
-            }
-        };
+    data = {{data|tojson}};
+    var map;
+    var icons = {
+        r: {
+            name: 'r',
+            icon: '../static/img/blue_marker.png'
+        },
+        sel: {
+            name: 'sel',
+            icon: '../static/img/big_marker.png'
+        },
+        p: {
+            name: 'p',
+            icon: '../static/img/orange_marker.png'
+        },
+        u: {
+            name: 'u',
+            icon: '../static/img/red_marker.png'
+        }
+    };
 
-        function reverse_children(element){
-            for (var i=1;i<element.childNodes.length;i++){
-                element.insertBefore(element.childNodes[i], element.firstChild);
+    function reverse_children(element){
+        for (var i=1;i<element.childNodes.length;i++){
+            element.insertBefore(element.childNodes[i], element.firstChild);
+        }
+    }
+
+    function getMethods(obj)
+    {
+        var res = [];
+        for(var m in obj) {
+            if(typeof obj[m] == "function") {
+                res.push(m)
             }
         }
-
-        function getMethods(obj)
-        {
-            var res = [];
-            for(var m in obj) {
-                if(typeof obj[m] == "function") {
-                    res.push(m)
-                }
-            }
-            return res;
-        }
+        return res;
+    }
 
 
-        function initMap() {
-            map = new google.maps.Map(document.getElementById('map'), {
-                center: {lat: 34.4835464, lng: -116.763886},
-                zoom: 7
-            });
-            data = {{data|tojson}};
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: 34.4835464, lng: -116.763886},
+            zoom: 7
+        });
 
-            loc_list = $('#list');
+        loc_list = $('#list');
 
-            list_items = [];
+        list_items = [];
 
-            data.forEach(function(loc){
-                var tr = $('<tr/>')
-                    .appendTo(loc_list);
-                
-                var td1 = $('<td/>')
-                    .text(loc.mile.toFixed(1))
-                    .addClass("col-sm-1")
-                    .appendTo(tr)
-
-                var td_water = $('<td/>')
-                    .text("")
-                    .addClass("col-sm-2")
-                    .appendTo(tr)
-
-                var td2 = $('<td/>')
-                    .text(loc.name.substr(0,40)+"...")
-                    .addClass("col-sm-9")
-                    .appendTo(tr)
-
-                if (loc.class == 'r') {
-                    var span = $('<span/>')
-                        .text("Water Reliable")
-                        .addClass("float-right")
-                        .addClass("badge")
-                        .addClass("badge-info")
-                        .appendTo(td2)
-                } else if (loc.class == 'p') {
-                    var span = $('<span/>')
-                        .text("Water Probable")
-                        .addClass("float-right")
-                        .addClass("badge")
-                        .addClass("badge-warning")
-                        .appendTo(td2)
-                } else if (loc.class == 'u') {
-                    var span = $('<span/>')
-                        .text("Water Unreliable")
-                        .addClass("float-right")
-                        .addClass("badge")
-                        .addClass("badge-danger")
-                        .appendTo(td2)
-                }
-
-
-
-                position = {'lat': loc.lat, 'lng':loc.lon}
-                var marker = new google.maps.Marker({
-                    position: position, 
-                    map: map,
-                    icon: icons[loc.class].icon
-                });
-
-                marker.normal_icon = icons[loc.class].icon;
-
-                marker.addListener('mouseover', function() {
-                    tr.addClass('table-active');
-                    marker.setIcon(icons['sel'].icon)
-                });
-
-
-                marker.addListener('mouseout', function() {
-                    tr.removeClass('table-active');
-                    marker.setIcon(marker.normal_icon)
-                });
-
-                tr.mouseover(function(){
-                    marker.setIcon(icons['sel'].icon)
-                })
-
-                tr.mouseout(function(){
-                    marker.setIcon(marker.normal_icon)
-                })
-
-                tr.mile = loc.mile;
-                tr.water = td_water;
-
-                list_items.push(tr)
-
-            });
-
+        data.forEach(function(loc){
+            var tr = $('<tr/>')
+                .appendTo(loc_list);
             
-        }
+            var td1 = $('<td/>')
+                .text(loc.mile.toFixed(1))
+                .addClass("col-sm-2")
+                .appendTo(tr)
+
+            var td2 = $('<td/>')
+                .text(loc.name.substr(0,40))
+                .addClass("col-sm-10")
+                .appendTo(tr)
+
+            var pred = $('<span/>')
+                .text("")
+                .addClass("float-right")
+                .addClass("badge")
+                .appendTo(td2)
+            
+            tr.prediction = pred
+
+
+            position = {'lat': loc.lat, 'lng':loc.lon}
+            var marker = new google.maps.Marker({
+                position: position, 
+                map: map,
+                //icon: icons[loc.class].icon
+            });
+            /*
+            marker.normal_icon = icons[loc.class].icon;
+
+            marker.addListener('mouseover', function() {
+                tr.addClass('table-active');
+                marker.setIcon(icons['sel'].icon)
+            });
+
+
+            marker.addListener('mouseout', function() {
+                tr.removeClass('table-active');
+                marker.setIcon(marker.normal_icon)
+            });
+
+            tr.mouseover(function(){
+                marker.setIcon(icons['sel'].icon)
+            })
+
+            tr.mouseout(function(){
+                marker.setIcon(marker.normal_icon)
+            })
+            */
+
+            tr.data = loc
+
+            list_items.push(tr)
+
+        });
+
+        updateListDate(0);
+
+        
+    }
 
     dir_btn = $('#dir');
 
+    day_buttons = [
+        $('#day_0'),
+        $('#day_1'),
+        $('#day_2'),
+        $('#day_3')
+    ];
+
+    function clearDayButtons() {
+        day_buttons.forEach(function (btn) {
+            btn.removeClass("active")
+        });
+    }
+
+    function updateListDate(n) {
+        list_items.forEach(function(item){
+            var key = 'prediction_'+n;
+            if (key in item.data) {
+                prediction = item.data[key]
+                item.prediction.text((prediction*100).toFixed(0)+"%")
+
+
+                item.prediction.removeClass("badge-info")
+                item.prediction.removeClass("badge-warning")
+                item.prediction.removeClass("badge-danger")
+
+                if (prediction > 0.8) {
+                    item.prediction.addClass("badge-info")
+                } else if (prediction > 0.5) {
+                    item.prediction.addClass("badge-warning")
+                } else {
+                    item.prediction.addClass("badge-danger")
+                }
+            } else {
+                item.prediction.text("")
+            }
+        });
+    }
+
+    day_buttons.forEach(function (btn, i) {
+        btn.click(function () {
+            clearDayButtons();
+            btn.addClass("active");
+            updateListDate(i)
+        })
+    })
 
     function updateListVisability() {
         var mile = parseFloat($('#mile_input').val())
         if (!isNaN(mile)) {
             list_items.forEach(function(item){
 
-                if (mile < item.mile) {
-                    var miles_left = item.mile - mile;
+                if (mile < item.data.mile) {
+                    var miles_left = item.data.mile - mile;
                     if (dir_btn.text() == "NOBO") {
                         item.show();
                     } else if (dir_btn.text() == "SOBO") {
@@ -240,7 +271,7 @@
                     }
                 } else {
 
-                    var miles_left = mile- item.mile;
+                    var miles_left = mile- item.data.mile;
                     if (dir_btn.text() == "NOBO") {
                         item.hide();
                     } else if (dir_btn.text() == "SOBO") {
@@ -248,14 +279,10 @@
                     }
                 }
 
-                var water_needed = miles_left * 0.4;
-
-                item.water.text(water_needed.toFixed(1)+" L");
             });
         } else {
             list_items.forEach(function(item){
                 item.show();
-                item.water.text("");
             });
         }
     }
