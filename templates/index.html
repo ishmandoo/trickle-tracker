@@ -92,7 +92,7 @@
             </div>
         </div>
                 
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2JH9aKFb5AuinMIDvZHF9CDuHHFgA2Go&callback=initMap"async defer></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2JH9aKFb5AuinMIDvZHF9CDuHHFgA2Go&callback=init"async defer></script>
     </body>
 </html>
 
@@ -123,28 +123,21 @@
             element.insertBefore(element.childNodes[i], element.firstChild);
         }
     }
+    var last_info_window = 0;
 
-    function getMethods(obj)
-    {
-        var res = [];
-        for(var m in obj) {
-            if(typeof obj[m] == "function") {
-                res.push(m)
-            }
-        }
-        return res;
-    }
-
-
-    function initMap() {
+    function init() {
         map = new google.maps.Map(document.getElementById('map'), {
             center: {lat: 34.4835464, lng: -116.763886},
             zoom: 7
         });
 
+
+
+
         loc_list = $('#list');
 
         list_items = [];
+
 
         data.forEach(function(loc){
             var tr = $('<tr/>')
@@ -175,20 +168,50 @@
                 map: map,
                 //icon: icons[loc.class].icon
             });
-            /*
-            marker.normal_icon = icons[loc.class].icon;
+
+            var info_window = new google.maps.InfoWindow({
+                content: `
+                <h4>${loc.name}</h4>
+                <p>${(new Date()).toLocaleString('en-En',{weekday: "narrow", month: "numeric", day: "numeric"})} water probability: ${loc.prediction_0.toFixed(2) * 100}%</p>
+                <p>${new Date(new Date().setDate(new Date().getDate() + 1)).toLocaleString('en-En',{weekday: "narrow", month: "numeric", day: "numeric"})} water probability: ${loc.prediction_1.toFixed(2) * 100}%</p>
+                <p>${new Date(new Date().setDate(new Date().getDate() + 2)).toLocaleString('en-En',{weekday: "narrow", month: "numeric", day: "numeric"})} water probability: ${loc.prediction_2.toFixed(2) * 100}%</p>
+                <p>${new Date(new Date().setDate(new Date().getDate() + 3)).toLocaleString('en-En',{weekday: "narrow", month: "numeric", day: "numeric"})} water probability: ${loc.prediction_3.toFixed(2) * 100}%</p>
+                `
+            });
+
+            marker.addListener('click', function() {
+                if (last_info_window) {
+                    last_info_window.close();
+                }
+                info_window.open(map, marker);
+                last_info_window = info_window;
+            });
+
+            tr.click(function () {
+                
+                if (last_info_window) {
+                    last_info_window.close();
+                }
+                info_window.open(map, marker);
+                last_info_window = info_window;
+            })
+
+
+            
+            //marker.normal_icon = icons[loc.class].icon;
 
             marker.addListener('mouseover', function() {
                 tr.addClass('table-active');
-                marker.setIcon(icons['sel'].icon)
+                //marker.setIcon(icons['sel'].icon)
             });
 
 
             marker.addListener('mouseout', function() {
                 tr.removeClass('table-active');
-                marker.setIcon(marker.normal_icon)
+                //marker.setIcon(marker.normal_icon)
             });
-
+            
+            /*
             tr.mouseover(function(){
                 marker.setIcon(icons['sel'].icon)
             })
@@ -199,12 +222,18 @@
             */
 
             tr.data = loc
+            tr.marker = marker
+            tr.info_window = info_window
 
             list_items.push(tr)
 
         });
 
         updateListDate(0);
+
+        google.maps.event.addListener(map, "click",function (){
+            clearInfoWindows();
+        })
 
         
     }
@@ -218,19 +247,30 @@
         $('#day_3')
     ];
 
+    day_buttons.forEach(function(btn,i) {
+        btn.children("a").text(new Date(new Date().setDate(new Date().getDate() + i)).toLocaleString('en-En',{month: "numeric", day: "numeric"}))
+    });
+
     function clearDayButtons() {
         day_buttons.forEach(function (btn) {
             btn.removeClass("active")
         });
     }
 
+    function clearInfoWindows() {
+        list_items.forEach(function(item){
+            item.info_window.close();
+        })
+    }
+
+
     function updateListDate(n) {
         list_items.forEach(function(item){
             var key = 'prediction_'+n;
             if (key in item.data) {
                 prediction = item.data[key]
-                item.prediction.text((prediction*100).toFixed(0)+"%")
 
+                item.prediction.text((prediction*100).toFixed(0)+"%")
 
                 item.prediction.removeClass("badge-info")
                 item.prediction.removeClass("badge-warning")
@@ -238,10 +278,13 @@
 
                 if (prediction > 0.8) {
                     item.prediction.addClass("badge-info")
+                    item.marker.setIcon(icons['r'].icon);
                 } else if (prediction > 0.5) {
                     item.prediction.addClass("badge-warning")
+                    item.marker.setIcon(icons['p'].icon);
                 } else {
                     item.prediction.addClass("badge-danger")
+                    item.marker.setIcon(icons['u'].icon);
                 }
             } else {
                 item.prediction.text("")
@@ -263,22 +306,18 @@
             list_items.forEach(function(item){
 
                 if (mile < item.data.mile) {
-                    var miles_left = item.data.mile - mile;
                     if (dir_btn.text() == "NOBO") {
                         item.show();
                     } else if (dir_btn.text() == "SOBO") {
                         item.hide();
                     }
                 } else {
-
-                    var miles_left = mile- item.data.mile;
                     if (dir_btn.text() == "NOBO") {
                         item.hide();
                     } else if (dir_btn.text() == "SOBO") {
                         item.show();
                     }
                 }
-
             });
         } else {
             list_items.forEach(function(item){
