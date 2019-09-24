@@ -60,7 +60,7 @@
 
                 <div class="col-lg-6">
                     <div class="row" style="margin-bottom: 10px;">
-                        <div class="col-3 col-sm-3">
+                        <div class="col-2 col-sm-2">
                             <input type="text" class="form-control form-inline" placeholder="mile" aria-label="Username" id="mile_input">
                         </div>
                         <div class="col-3 col-sm-3">
@@ -68,7 +68,7 @@
                                 <button id="dir" class="btn btn-primary btn-block" >NOBO</button>
                             </div>
                         </div>
-                        <div class="col-6 col-sm-6">
+                        <div class="col-7 col-sm-7">
                             <ul class="pagination">
                                 <li class="page-item active" id="day_0"><a class="page-link">Today</a></li>
                                 <li class="page-item" id="day_1"><a class="page-link">+1</a></li>
@@ -248,7 +248,11 @@
     ];
 
     day_buttons.forEach(function(btn,i) {
-        btn.children("a").text(new Date(new Date().setDate(new Date().getDate() + i)).toLocaleString('en-En',{month: "numeric", day: "numeric"}))
+        extra = "";
+        if (i==0) {
+            extra = " (Today)"
+        }
+        btn.children("a").text(new Date(new Date().setDate(new Date().getDate() + i)).toLocaleString('en-En',{month: "numeric", day: "numeric"}) + extra)
     });
 
     function clearDayButtons() {
