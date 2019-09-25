@@ -23,7 +23,7 @@
                 width: 97%;
             }
             .table-fixed tbody {
-                height:650px;
+                height:550px;
                 display : none;
                 overflow-y: auto;
                 width: 100%;
@@ -55,7 +55,7 @@
                 </div>
 
                 <div class="col-lg-6">
-                    <div id="map" width=100% height=750px></div>
+                    <div id="map" width=100% height=650px></div>
                 </div>
 
                 <div class="col-lg-6">
@@ -127,8 +127,8 @@
 
     function init() {
         map = new google.maps.Map(document.getElementById('map'), {
-            center: {lat: 34.4835464, lng: -116.763886},
-            zoom: 7
+            center: {lat: 40, lng: -120},
+            zoom: 5
         });
 
 
