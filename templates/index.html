@@ -102,19 +102,27 @@
     var icons = {
         r: {
             name: 'r',
-            icon: '../static/img/blue_marker.png'
+            icon: '../static/img/reliable_sm.png'
         },
-        sel: {
-            name: 'sel',
-            icon: '../static/img/big_marker.png'
+        r_sel: {
+            name: 'r_sel',
+            icon: '../static/img/reliable_sel.png'
         },
         p: {
             name: 'p',
-            icon: '../static/img/orange_marker.png'
+            icon: '../static/img/probable_sm.png'
+        },
+        p_sel: {
+            name: 'p_sel',
+            icon: '../static/img/probable_sel.png'
         },
         u: {
             name: 'u',
-            icon: '../static/img/red_marker.png'
+            icon: '../static/img/unreliable_sm.png'
+        },
+        u_sel: {
+            name: 'u_sel',
+            icon: '../static/img/unreliable_sel.png'
         }
     };
 
@@ -185,6 +193,7 @@
                 }
                 info_window.open(map, marker);
                 last_info_window = info_window;
+                tr[0].scrollIntoView();
             });
 
             tr.click(function () {
@@ -202,24 +211,24 @@
 
             marker.addListener('mouseover', function() {
                 tr.addClass('table-active');
-                //marker.setIcon(icons['sel'].icon)
+                marker.setIcon(tr.icon_sel)
             });
 
 
             marker.addListener('mouseout', function() {
                 tr.removeClass('table-active');
-                //marker.setIcon(marker.normal_icon)
+                marker.setIcon(tr.icon)
             });
             
-            /*
+            
             tr.mouseover(function(){
-                marker.setIcon(icons['sel'].icon)
+                marker.setIcon(tr.icon_sel)
             })
 
             tr.mouseout(function(){
-                marker.setIcon(marker.normal_icon)
+                marker.setIcon(tr.icon)
             })
-            */
+            
 
             tr.data = loc
             tr.marker = marker
@@ -282,13 +291,25 @@
 
                 if (prediction > 0.8) {
                     item.prediction.addClass("badge-info")
-                    item.marker.setIcon(icons['r'].icon);
+                    icon = icons['r'].icon
+                    icon_sel = icons['r_sel'].icon
+                    item.marker.setIcon(icon);
+                    item.icon = icon
+                    item.icon_sel = icon_sel
                 } else if (prediction > 0.5) {
                     item.prediction.addClass("badge-warning")
-                    item.marker.setIcon(icons['p'].icon);
+                    icon = icons['p'].icon
+                    icon_sel = icons['p_sel'].icon
+                    item.marker.setIcon(icon);
+                    item.icon = icon
+                    item.icon_sel = icon_sel
                 } else {
                     item.prediction.addClass("badge-danger")
-                    item.marker.setIcon(icons['u'].icon);
+                    icon = icons['u'].icon
+                    icon_sel = icons['u_sel'].icon
+                    item.marker.setIcon(icon);
+                    item.icon = icon
+                    item.icon_sel = icon_sel
                 }
             } else {
                 item.prediction.text("")
