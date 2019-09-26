@@ -8,7 +8,7 @@
         
         <style>
             #map {
-                height: 750px;
+                height: 650px;
             }
             html, body {
                 height: 100%;
@@ -82,7 +82,15 @@
                         <thead>
                             <tr class="">
                                 <th scope="col" class="col-sm-2">Mile</th>
-                                <th scope="col" class="col-sm-10">Water Source Name</th>
+                                <th scope="col" class="col-sm-10">
+                                    Water Source Name 
+                                    <div class="float-right">
+                                            <span class="badge badge-info">&gt;95% chance</span>&nbsp;
+                                            <span class="badge badge-warning">&gt;50% Chance</span>&nbsp;
+                                            <span class="badge badge-danger">&lt;50% Chance</span>&nbsp;
+
+                                    </div>
+                                </th>
                             </tr>
                         </thead>
                         <tbody id="list">
@@ -151,7 +159,7 @@
             var tr = $('<tr/>')
                 .appendTo(loc_list);
             
-            var td1 = $('<td/>')
+            var mile = $('<td/>')
                 .text(loc.mile.toFixed(1))
                 .addClass("col-sm-2")
                 .appendTo(tr)
@@ -168,6 +176,7 @@
                 .appendTo(td2)
             
             tr.prediction = pred
+            tr.mile = mile
 
 
             position = {'lat': loc.lat, 'lng':loc.lon}
@@ -283,21 +292,23 @@
             if (key in item.data) {
                 prediction = item.data[key]
 
-                item.prediction.text((prediction*100).toFixed(0)+"%")
+                //item.prediction.text((prediction*100).toFixed(0)+"%")
 
                 item.prediction.removeClass("badge-info")
                 item.prediction.removeClass("badge-warning")
                 item.prediction.removeClass("badge-danger")
 
-                if (prediction > 0.8) {
+                if (prediction > 0.7) {
                     item.prediction.addClass("badge-info")
+                    item.prediction.text("Water Reliable")
                     icon = icons['r'].icon
                     icon_sel = icons['r_sel'].icon
                     item.marker.setIcon(icon);
                     item.icon = icon
                     item.icon_sel = icon_sel
-                } else if (prediction > 0.5) {
+                } else if (prediction > 0.05) {
                     item.prediction.addClass("badge-warning")
+                    item.prediction.text("Water Probable")
                     icon = icons['p'].icon
                     icon_sel = icons['p_sel'].icon
                     item.marker.setIcon(icon);
@@ -305,6 +316,7 @@
                     item.icon_sel = icon_sel
                 } else {
                     item.prediction.addClass("badge-danger")
+                    item.prediction.text("Water Unreliable")
                     icon = icons['u'].icon
                     icon_sel = icons['u_sel'].icon
                     item.marker.setIcon(icon);
@@ -333,6 +345,7 @@
                 if (mile < item.data.mile) {
                     if (dir_btn.text() == "NOBO") {
                         item.show();
+                        item.mile.text(`(${(- mile + item.data.mile).toFixed(1)})`)
                     } else if (dir_btn.text() == "SOBO") {
                         item.hide();
                     }
@@ -341,12 +354,14 @@
                         item.hide();
                     } else if (dir_btn.text() == "SOBO") {
                         item.show();
+                        item.mile.text(`(${mile - item.data.mile})`)
                     }
                 }
             });
         } else {
             list_items.forEach(function(item){
                 item.show();
+                item.mile.text(item.data.mile.toFixed(1))
             });
         }
     }
