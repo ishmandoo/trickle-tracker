@@ -2,17 +2,17 @@
 <html>
     <head>
         <link rel="stylesheet" href="../static/bootstrap.min.css"></link>
+        <link rel="icon" href="_../static/img/favicon.png">
         <script href="../static/bootstrap.bundle.js"></script>
-        <script href="../static/jquery.js"></script>
         <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
-        <!-- Global site tag (gtag.js) - Google Analytics -->
+
         <script async src="https://www.googletagmanager.com/gtag/js?id=UA-148907714-1"></script>
         <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
 
-        gtag('config', 'UA-148907714-1');
+            gtag('config', 'UA-148907714-1');
         </script>
 
         <style>
@@ -118,8 +118,10 @@
 </html>
 
 <script>
+    // import data from the request
     data = {{data|tojson}};
-    var map;
+
+    // initialize the icon dictionary
     var icons = {
         r: {
             name: 'r',
@@ -147,28 +149,35 @@
         }
     };
 
+    // a function for reversing the children of a DOM element
     function reverse_children(element){
         for (var i=1;i<element.childNodes.length;i++){
             element.insertBefore(element.childNodes[i], element.firstChild);
         }
     }
+
+    // store the last info window that was opened
     var last_info_window = 0;
 
+
+    // initialize the app
+    var map;
     function init() {
+        // initialize the map
         map = new google.maps.Map(document.getElementById('map'), {
             center: {lat: 40, lng: -120},
             zoom: 5
         });
 
-
-
-
+        // grab the list DOM element
         loc_list = $('#list');
 
+        // initialze a list of DOM items
         list_items = [];
 
-
+        // loop over data items
         data.forEach(function(loc){
+            // build the list item
             var tr = $('<tr/>')
                 .appendTo(loc_list);
             
@@ -188,10 +197,11 @@
                 .addClass("badge")
                 .appendTo(td2)
             
+            // store the prediction and location in the DOM object
             tr.prediction = pred
             tr.mile = mile
 
-
+            // make a marker on the map
             position = {'lat': loc.lat, 'lng':loc.lon}
             var marker = new google.maps.Marker({
                 position: position, 
@@ -199,16 +209,26 @@
                 //icon: icons[loc.class].icon
             });
 
+            // convert the float status to english term
+            function statusToDescription(status){
+                if (status == 1.) {
+                    return "flowing"
+                } else {
+                    return "not flowing"
+                }
+            }
+
+            // build the info window
+            info_window_content = `<h4>${loc.name}</h4>`
+            loc.last_3.forEach(function(day){
+                info_window_content += `<p>${(new Date(day.date)).toLocaleString('en-En',{year: "2-digit", month: "numeric", day: "numeric"})}: ${statusToDescription(day.status)}</p>
+`
+            });
             var info_window = new google.maps.InfoWindow({
-                content: `
-                <h4>${loc.name}</h4>
-                <p>${(new Date()).toLocaleString('en-En',{weekday: "narrow", month: "numeric", day: "numeric"})} water probability: ${loc.prediction_0.toFixed(2) * 100}%</p>
-                <p>${new Date(new Date().setDate(new Date().getDate() + 1)).toLocaleString('en-En',{weekday: "narrow", month: "numeric", day: "numeric"})} water probability: ${loc.prediction_1.toFixed(2) * 100}%</p>
-                <p>${new Date(new Date().setDate(new Date().getDate() + 2)).toLocaleString('en-En',{weekday: "narrow", month: "numeric", day: "numeric"})} water probability: ${loc.prediction_2.toFixed(2) * 100}%</p>
-                <p>${new Date(new Date().setDate(new Date().getDate() + 3)).toLocaleString('en-En',{weekday: "narrow", month: "numeric", day: "numeric"})} water probability: ${loc.prediction_3.toFixed(2) * 100}%</p>
-                `
+                content: info_window_content
             });
 
+            // add click listener to the map markers that scroll to the list item and open the info window
             marker.addListener('click', function() {
                 if (last_info_window) {
                     last_info_window.close();
@@ -218,6 +238,7 @@
                 tr[0].scrollIntoView();
             });
 
+            // add a click listener to the list item that opens the info window
             tr.click(function () {
                 
                 if (last_info_window) {
@@ -227,10 +248,7 @@
                 last_info_window = info_window;
             })
 
-
-            
-            //marker.normal_icon = icons[loc.class].icon;
-
+            // add mouse over listeners for marker reaction
             marker.addListener('mouseover', function() {
                 tr.addClass('table-active');
                 marker.setIcon(tr.icon_sel)
@@ -242,7 +260,7 @@
                 marker.setIcon(tr.icon)
             });
             
-            
+            // add mouse over listeners for list item reaction
             tr.mouseover(function(){
                 marker.setIcon(tr.icon_sel)
             })
@@ -251,7 +269,7 @@
                 marker.setIcon(tr.icon)
             })
             
-
+            // save some data into the list DOM object
             tr.data = loc
             tr.marker = marker
             tr.info_window = info_window
@@ -311,7 +329,7 @@
                 item.prediction.removeClass("badge-warning")
                 item.prediction.removeClass("badge-danger")
 
-                if (prediction > 0.7) {
+                if (prediction > 0.76) {
                     item.prediction.addClass("badge-info")
                     item.prediction.text("Water Reliable")
                     icon = icons['r'].icon
@@ -319,7 +337,7 @@
                     item.marker.setIcon(icon);
                     item.icon = icon
                     item.icon_sel = icon_sel
-                } else if (prediction > 0.05) {
+                } else if (prediction > 0.08) {
                     item.prediction.addClass("badge-warning")
                     item.prediction.text("Water Probable")
                     icon = icons['p'].icon
