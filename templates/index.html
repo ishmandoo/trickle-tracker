@@ -385,7 +385,7 @@
                         item.hide();
                     } else if (dir_btn.text() == "SOBO") {
                         item.show();
-                        item.mile.text(`(${mile - item.data.mile})`)
+                        item.mile.text(`(${(mile - item.data.mile).toFixed(1)})`)
                     }
                 }
             });
