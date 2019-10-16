@@ -297,11 +297,7 @@
     ];
 
     day_buttons.forEach(function(btn,i) {
-        extra = "";
-        if (i==0) {
-            extra = " (Today)"
-        }
-        btn.children("a").text(new Date(new Date().setDate(new Date().getDate() + i)).toLocaleString('en-En',{month: "numeric", day: "numeric"}) + extra)
+        btn.children("a").text(new Date(new Date().setDate(new Date().getDate() + i)).toLocaleString('en-En',{month: "numeric", day: "numeric"}))
     });
 
     function clearDayButtons() {
