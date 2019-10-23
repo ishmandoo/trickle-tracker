@@ -17,7 +17,7 @@
 
         <style>
             #map {
-                height: 650px;
+                height: 550px;
             }
             html, body {
                 height: 100%;
@@ -32,7 +32,7 @@
                 width: 97%;
             }
             .table-fixed tbody {
-                height:550px;
+                height:450px;
                 display : none;
                 overflow-y: auto;
                 width: 100%;
@@ -325,7 +325,7 @@
                 item.prediction.removeClass("badge-warning")
                 item.prediction.removeClass("badge-danger")
 
-                if (prediction > 0.76) {
+                if (prediction > 0.82) {
                     item.prediction.addClass("badge-info")
                     item.prediction.text("Water Reliable")
                     icon = icons['r'].icon
@@ -333,7 +333,7 @@
                     item.marker.setIcon(icon);
                     item.icon = icon
                     item.icon_sel = icon_sel
-                } else if (prediction > 0.08) {
+                } else if (prediction > 0.22) {
                     item.prediction.addClass("badge-warning")
                     item.prediction.text("Water Probable")
                     icon = icons['p'].icon
